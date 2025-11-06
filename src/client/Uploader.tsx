@@ -17,6 +17,8 @@ const Uploader = ({ uploadSingle, withFileList = false }: Props) => {
 
     const fileListRef = useRef<FileListRef>(null);
 
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setFiles(Array.from(e.target.files));
@@ -45,18 +47,25 @@ const Uploader = ({ uploadSingle, withFileList = false }: Props) => {
             <form onSubmit={onSubmit} className="p-6 rounded-lg shadow border flex flex-col gap-y-4">
                 <h2 className="text-xl font-semibold text-center">Upload files</h2>
 
-                <label
-                    htmlFor="file-upload"
-                    className="p-4 flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer"
+                <button
+                    type="button"
+                    className="p-4 flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    // Accessibility: ensure the solution meets accessibility standards
+                    aria-describedby="file-upload-description"
+                    onClick={() => {
+                        inputRef.current?.click();
+                    }}
                 >
-                    <span className="text-gray-600 text-sm">Click and select some files</span>
-                    <input id="file-upload" type="file" className="hidden" multiple onChange={onChange} />
-                </label>
+                    <span id="file-upload-description" className="text-gray-600 text-sm">
+                        Click or tab to select files
+                    </span>
+                    <input id="file-input" ref={inputRef} type="file" className="hidden" multiple onChange={onChange} />
+                </button>
 
                 {files.length > 0 ? (
                     <ul className="text-sm text-gray-700 space-y-2 max-h-32 overflow-auto">
                         {files.map((file, index) => (
-                            <li key={index} className="truncate">
+                            <li key={`${file.name}-${index}`} className="truncate">
                                 📄 {file.name}
                             </li>
                         ))}
