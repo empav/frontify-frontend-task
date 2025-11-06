@@ -3,6 +3,24 @@ import React, { useRef, useState } from 'react';
 import FileList, { type FileListRef } from './FileList';
 import { fetchFiles } from './api';
 
+/**
+ * Uploader component for uploading one or multiple files.
+ *
+ * @component
+ * @param {Object} props - Component props.
+ * @param {(file: File) => Promise<any>} props.uploadSingle - Function to handle uploading a single file.
+ * @param {boolean} [props.withFileList=false] - Whether to display the uploaded file list below the uploader.
+ *
+ * @example
+ * <Uploader uploadSingle={uploadFileHandler} withFileList={true} />
+ *
+ * @remarks
+ * - Uses a hidden file input triggered by a styled button for accessibility.
+ * - Displays a list of selected files before upload.
+ * - Submits all selected files in parallel and clears the selection on success.
+ * - Optionally renders a file list component if `withFileList` is true.
+ */
+
 type Props = {
     // Pluggable upload logic: the component must not be tied to a specific upload technology or API.
     // Endpoints can use different request and response types or even use something like GraphQL.
