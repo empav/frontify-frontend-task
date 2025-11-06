@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -11,13 +11,22 @@ const TESTING_UPLOADS_CHUNKS_DIR = 'src/server/test/uploads-chunks';
 
 describe('E2E', () => {
     beforeAll(() => {
-        const uploadedFiles = readdirSync(TESTING_UPLOADS_DIR);
-        for (const file of uploadedFiles) {
-            rmSync(join(TESTING_UPLOADS_DIR, file));
+        if (existsSync(TESTING_UPLOADS_DIR)) {
+            const uploadedFiles = readdirSync(TESTING_UPLOADS_DIR);
+            for (const file of uploadedFiles) {
+                rmSync(join(TESTING_UPLOADS_DIR, file));
+            }
+        } else {
+            mkdirSync(TESTING_UPLOADS_DIR);
         }
-        const uploadedChunksFiles = readdirSync(TESTING_UPLOADS_CHUNKS_DIR);
-        for (const file of uploadedChunksFiles) {
-            rmSync(join(TESTING_UPLOADS_CHUNKS_DIR, file));
+
+        if (existsSync(TESTING_UPLOADS_CHUNKS_DIR)) {
+            const uploadedChunksFiles = readdirSync(TESTING_UPLOADS_CHUNKS_DIR);
+            for (const file of uploadedChunksFiles) {
+                rmSync(join(TESTING_UPLOADS_CHUNKS_DIR, file));
+            }
+        } else {
+            mkdirSync(TESTING_UPLOADS_CHUNKS_DIR);
         }
         app.listen(TESTING_PORT);
     });
