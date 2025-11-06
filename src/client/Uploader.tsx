@@ -77,7 +77,15 @@ const Uploader = ({ uploadSingle, withFileList = false }: Props) => {
                     <span id="file-upload-description" className="text-gray-600 text-sm">
                         Click or tab to select files
                     </span>
-                    <input id="file-input" ref={inputRef} type="file" className="hidden" multiple onChange={onChange} />
+                    <input
+                        id="file-input"
+                        data-testid="file-input"
+                        ref={inputRef}
+                        type="file"
+                        className="hidden"
+                        multiple
+                        onChange={onChange}
+                    />
                 </button>
 
                 {files.length > 0 ? (
