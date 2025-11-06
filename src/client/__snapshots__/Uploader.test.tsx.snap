@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Uploader component > should match snapshot 1`] = `
+<DocumentFragment>
+  <form
+    class="p-6 rounded-lg shadow border flex flex-col gap-y-4"
+  >
+    <h2
+      class="text-xl font-semibold text-center"
+    >
+      Upload files
+    </h2>
+    <button
+      aria-describedby="file-upload-description"
+      class="p-4 flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+      type="button"
+    >
+      <span
+        class="text-gray-600 text-sm"
+        id="file-upload-description"
+      >
+        Click or tab to select files
+      </span>
+      <input
+        class="hidden"
+        data-testid="file-input"
+        id="file-input"
+        multiple=""
+        type="file"
+      />
+    </button>
+    <button
+      class="w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition disabled:cursor-not-allowed disabled:bg-blue-400"
+      disabled=""
+      type="submit"
+    >
+      Upload
+    </button>
+  </form>
+</DocumentFragment>
+`;

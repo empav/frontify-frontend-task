@@ -25,6 +25,11 @@ describe('Uploader component', () => {
         vi.clearAllMocks();
     });
 
+    test('should match snapshot', () => {
+        const { asFragment } = render(<Uploader uploadSingle={mockUploadSingle} />);
+        expect(asFragment()).toMatchSnapshot();
+    });
+
     test('renders uploader form', () => {
         render(<Uploader uploadSingle={mockUploadSingle} />);
         expect(screen.getByText(/upload files/i)).toBeInTheDocument();
