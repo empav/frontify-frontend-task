@@ -3,29 +3,26 @@ import React, { useRef, useState } from 'react';
 import FileList, { type FileListRef } from './FileList';
 import { fetchFiles } from './api';
 
-type UploaderBaseProps = {
+export type Props = {
     withFileList?: boolean;
     chunkSize?: number;
 
     onSuccess?: () => void;
     onFail?: (message: string) => void;
-};
-
-type UploaderSingleProps = {
-    // Pluggable upload logic: the component must not be tied to a specific upload technology or API.
-    // Endpoints can use different request and response types or even use something like GraphQL.
-    upload: (file: File) => Promise<Response>;
-    uploadChunk?: never;
-} & UploaderBaseProps;
-
-type UploaderChunkProps = {
-    // Pluggable upload logic: the component must not be tied to a specific upload technology or API.
-    // Endpoints can use different request and response types or even use something like GraphQL.
-    uploadChunk: (body: FormData) => Promise<Response>;
-    upload?: never;
-} & UploaderBaseProps;
-
-export type Props = UploaderSingleProps | UploaderChunkProps;
+} & (
+    | {
+          // Pluggable upload logic: the component must not be tied to a specific upload technology or API.
+          // Endpoints can use different request and response types or even use something like GraphQL.
+          upload: (file: File) => Promise<Response>;
+          uploadChunk?: never;
+      }
+    | {
+          // Pluggable upload logic: the component must not be tied to a specific upload technology or API.
+          // Endpoints can use different request and response types or even use something like GraphQL.
+          uploadChunk: (body: FormData) => Promise<Response>;
+          upload?: never;
+      }
+);
 
 const CHUNK_SIZE = 1024 * 50; // 50 KB per chunk
 
@@ -54,16 +51,18 @@ const CHUNK_SIZE = 1024 * 50; // 50 KB per chunk
  *                 and uses `upload` for each selected file.
  * @param withFileList - Optional. If true, renders a `FileList` component below the uploader and attempts
  *                       to `refetch` it after successful uploads. Defaults to `false`.
+ * @param onSuccess - Optional. Triggered on upload success to inform the parent component
+ * @param onFail - Optional. Triggered on upload failure to inform the parent component
  *
  * Behavior and implementation notes:
  * - File selection is handled via a hidden or visible <input type="file"> and stored in internal state.
  * - When `upload` is provided, the form submission triggers parallel uploads for all selected files
  *   using `Promise.all`. On success the selected files list is cleared and the file list (if present) is refetched.
- *   Any rejection is caught, and an error is shown.
+ *   Any rejection is caught, and an error is shown and logged.
  * - When operating in chunked mode, only one selected file is uploaded. The file is split into
  *   Math.ceil(file.size / chunkSize) chunks using `file.slice(start, end)`. For each chunk a FormData
  *   payload is created and passed to `uploadChunk`. If a chunk upload response is not OK or the
- *   promise rejects, the loop aborts and the error is logged. Progress state (`chunksProgress`) is
+ *   promise rejects, the loop aborts and the error is shown and logged. Progress state (`chunksProgress`) is
  *   updated after each successfully uploaded chunk (percentage rounded to nearest integer).
  * - After completing (or aborting) a chunked upload, the component attempts to `refetch` the file list if present.
  *
@@ -73,9 +72,9 @@ const CHUNK_SIZE = 1024 * 50; // 50 KB per chunk
  * - Buttons are disabled when no file is selected to prevent empty submissions.
  *
  * Error handling:
- * - Chunked uploads: stops at first failed chunk; error is logged to the console.
- * - Whole-file uploads: if any upload promise rejects, the aggregate operation fails, the error is logged,
- *   and an error is shown.
+ * - Chunked uploads: stops at first failed chunk; error is shown and logged to the console.
+ * - Whole-file uploads: if any upload promise rejects, the aggregate operation fails, the error is logged
+ *   and shown.
  *
  * Returns:
  * @returns JSX.Element - the rendered uploader form and optional file list.
@@ -84,8 +83,8 @@ const CHUNK_SIZE = 1024 * 50; // 50 KB per chunk
  * const uploadFile = async (file: File) => { ... }                 // for whole-file mode
  * const uploadChunk = async (fd: FormData) => fetch('/chunks', { method: 'POST', body: fd });
  *
- * <Uploader upload={uploadFile} withFileList={true} />
- * <Uploader chunkSize={1024 * 1024} uploadChunk={uploadChunk} />
+ * <Uploader upload={uploadFile} withFileList onSuccess={() => {}} onFail={() => {}} />
+ * <Uploader chunkSize={1024 * 1024} uploadChunk={uploadChunk} onSuccess={() => {}} onFail={() => {}}/>
  */
 const Uploader = ({
     chunkSize = CHUNK_SIZE,
