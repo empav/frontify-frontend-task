@@ -1,6 +1,63 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Uploader component > should match snapshot 1`] = `
+exports[`Uploader component > Chunked > should match snapshot 1`] = `
+<DocumentFragment>
+  <form
+    class="p-6 rounded-lg shadow border flex flex-col gap-y-4"
+  >
+    <h2
+      class="text-xl font-semibold text-center"
+    >
+      Upload a file in chunks
+    </h2>
+    <p
+      class="text-red-500 text-sm"
+    />
+    <input
+      aria-describedby="file-upload"
+      class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md
+                   file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700
+                   hover:file:bg-blue-100"
+      data-testid="file-input"
+      role="button"
+      tabindex="0"
+      type="file"
+    />
+    <span
+      class="sr-only"
+      id="file-upload"
+    >
+      Click to select a file
+    </span>
+    <div
+      class="mt-4"
+    >
+      <div
+        class="h-3 bg-gray-200 rounded-full"
+      >
+        <div
+          class="h-3 bg-blue-600 rounded-full transition-all"
+          style="width: 0%;"
+        />
+      </div>
+      <p
+        class="text-sm text-gray-600 mt-2 text-center"
+      >
+        0% completed
+      </p>
+    </div>
+    <button
+      class="w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition disabled:cursor-not-allowed disabled:bg-blue-400"
+      disabled=""
+      type="submit"
+    >
+      Upload
+    </button>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`Uploader component > Single/Multiple > should match snapshot 1`] = `
 <DocumentFragment>
   <form
     class="p-6 rounded-lg shadow border flex flex-col gap-y-4"
@@ -10,6 +67,9 @@ exports[`Uploader component > should match snapshot 1`] = `
     >
       Upload files
     </h2>
+    <p
+      class="text-red-500 text-sm"
+    />
     <button
       aria-describedby="file-upload-description"
       class="p-4 flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
