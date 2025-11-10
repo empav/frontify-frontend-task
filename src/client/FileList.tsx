@@ -33,7 +33,7 @@ const FileList = forwardRef<FileListRef, Props>(({ fetchFiles }, ref) => {
 
     return (
         <div className="flex flex-col gap-y-4">
-            <h1>Inside ${'{projectRoot}/uploads:'}</h1>
+            <h1>Inside folder ${'{projectRoot}/uploads:'}</h1>
             <table>
                 <thead>
                     <tr>
