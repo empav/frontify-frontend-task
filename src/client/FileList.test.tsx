@@ -1,61 +1,81 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { createRef } from 'react';
-import { vi, describe, test, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 
-import FileList, { type FileListRef } from './FileList';
+import FileList from './FileList';
+import useFetchFiles from './hooks/useFetchFiles';
+const mockedUseFetchFiles = useFetchFiles as unknown as ReturnType<typeof vi.fn>;
 
 describe('FileList component', () => {
-    test('renders nothing when fetch returns empty array', async () => {
-        const fetchFiles = vi.fn().mockResolvedValue([]);
-        render(<FileList fetchFiles={fetchFiles} />);
+    vi.mock('./hooks/useFetchFiles', () => ({ default: vi.fn() }));
 
-        await waitFor(() => {
-            expect(fetchFiles).toHaveBeenCalled();
+    beforeEach(() => {
+        mockedUseFetchFiles.mockReset();
+    });
+    test('should match snapshot', () => {
+        mockedUseFetchFiles.mockReturnValue({
+            isFetching: false,
+            data: { files: [] },
+            error: null,
         });
 
-        expect(screen.queryByRole('table')).toBeNull();
+        const { asFragment } = render(<FileList />);
+        expect(asFragment()).toMatchSnapshot();
     });
 
-    test('displays files returned by fetchFiles', async () => {
-        const f1 = new File(['a'], 'a.txt', { type: 'text/plain' });
-        const f2 = new File(['bb'], 'b.txt', { type: 'text/plain' });
-        const fetchFiles = vi.fn().mockResolvedValue([f1, f2]);
-
-        render(<FileList fetchFiles={fetchFiles} />);
-
-        expect(await screen.findByText(f1.name)).toBeTruthy();
-        expect(screen.getByText(String(f1.size))).toBeTruthy();
-        expect(screen.getByText(f2.name)).toBeTruthy();
-        expect(screen.getByText(String(f2.size))).toBeTruthy();
-    });
-
-    test('refetches when refetch is called via ref', async () => {
-        const f1 = new File(['a'], 'initial.txt', { type: 'text/plain' });
-        const f2 = new File(['abc'], 'updated.txt', { type: 'text/plain' });
-
-        const fetchFiles = vi.fn().mockResolvedValueOnce([f1]).mockResolvedValueOnce([f2]);
-
-        const ref = createRef<FileListRef>();
-        render(<FileList fetchFiles={fetchFiles} ref={ref} />);
-
-        // initial render shows initial file
-        expect(await screen.findByText(f1.name)).toBeTruthy();
-
-        // call refetch and wait for updated content
-        ref.current?.refetch();
-        expect(await screen.findByText(f2.name)).toBeTruthy();
-    });
-
-    test('alerts on fetch error', async () => {
-        const fetchFiles = vi.fn().mockRejectedValue(new Error('fetch-failed'));
-        const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
-
-        render(<FileList fetchFiles={fetchFiles} />);
-
-        await waitFor(() => {
-            expect(alertSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'fetch-failed' }));
+    test('returns null when no files are present', () => {
+        mockedUseFetchFiles.mockReturnValue({
+            isFetching: false,
+            data: { files: [] },
+            error: null,
         });
 
-        alertSpy.mockRestore();
+        const { container } = render(<FileList />);
+        expect(container.firstChild).toBeNull();
+    });
+
+    test('renders table with files, header and sizes', () => {
+        mockedUseFetchFiles.mockReturnValue({
+            isFetching: false,
+            data: {
+                files: [
+                    { name: 'a.txt', size: 1000 },
+                    { name: 'b.png', size: 2048 },
+                ],
+            },
+            error: null,
+        });
+
+        render(<FileList />);
+
+        expect(screen.getByText('Inside folder ${projectRoot}/uploads:')).toBeTruthy();
+        expect(screen.getByText('a.txt')).toBeTruthy();
+        expect(screen.getByText('1000')).toBeTruthy();
+        expect(screen.getByText('b.png')).toBeTruthy();
+        expect(screen.getByText('2048')).toBeTruthy();
+    });
+
+    test('shows loading state when fetching', () => {
+        mockedUseFetchFiles.mockReturnValue({
+            isFetching: true,
+            data: { files: [{ name: 'a.txt', size: 1000 }] },
+            error: null,
+        });
+
+        render(<FileList />);
+
+        expect(screen.getByText('Loading...')).toBeTruthy();
+    });
+
+    test('displays error when present', () => {
+        const error = { message: 'boom' };
+        mockedUseFetchFiles.mockReturnValue({
+            isFetching: false,
+            data: { files: [{ name: 'a.txt', size: 1000 }] },
+            error,
+        });
+
+        render(<FileList />);
+
+        expect(screen.getByText(JSON.stringify(error))).toBeTruthy();
     });
 });
