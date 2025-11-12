@@ -1,33 +1,17 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef } from 'react';
 
-import { type FetchFilesResponse } from './types';
-
-type Props = {
-    fetchFiles: () => Promise<FetchFilesResponse>;
-};
+import useFetchFiles from './hooks/useFetchFiles';
 
 export type FileListRef = {
     refetch: () => void;
 };
 
-const FileList = forwardRef<FileListRef, Props>(({ fetchFiles }, ref) => {
-    const [files, setFiles] = useState<FetchFilesResponse['files']>([]);
-
-    const fetch = useCallback(() => {
-        fetchFiles()
-            .then((resp) => setFiles(resp.files))
-            .catch((error) => alert(error));
-    }, [fetchFiles]);
-
-    // fetch data when component mounts
-    useEffect(() => {
-        fetch();
-    }, [fetch]);
-
-    // Refetch data when parent component trigger refetch
-    useImperativeHandle(ref, () => ({
-        refetch: fetch,
-    }));
+const FileList = forwardRef<FileListRef>((_, ref) => {
+    const {
+        isFetching,
+        data: { files },
+        error,
+    } = useFetchFiles(ref);
 
     if (files.length === 0) {
         return null;
@@ -35,6 +19,8 @@ const FileList = forwardRef<FileListRef, Props>(({ fetchFiles }, ref) => {
 
     return (
         <div className="flex flex-col gap-y-4">
+            {isFetching ? <p>Loading...</p> : null}
+            {error ? <p className="text-red-500 text-sm">{JSON.stringify(error)}</p> : null}
             <h1>Inside folder ${'{projectRoot}/uploads:'}</h1>
             <table>
                 <thead>
