@@ -1,7 +1,8 @@
-export const fetchFiles = async (): Promise<File[]> => {
+import { type FetchFilesResponse } from '../types';
+
+export const fetchFiles = async (): Promise<FetchFilesResponse> => {
     const res = await fetch('/api/files');
-    const data = (await res.json()) as { files: File[] };
-    return data.files;
+    return (await res.json()) as FetchFilesResponse;
 };
 
 export const uploadSingle = async (file: File): Promise<Response> => {

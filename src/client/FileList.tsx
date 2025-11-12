@@ -1,7 +1,9 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 
+import { type FetchFilesResponse } from './types';
+
 type Props = {
-    fetchFiles: () => Promise<File[]>;
+    fetchFiles: () => Promise<FetchFilesResponse>;
 };
 
 export type FileListRef = {
@@ -9,11 +11,11 @@ export type FileListRef = {
 };
 
 const FileList = forwardRef<FileListRef, Props>(({ fetchFiles }, ref) => {
-    const [files, setFiles] = useState<File[]>([]);
+    const [files, setFiles] = useState<FetchFilesResponse['files']>([]);
 
     const fetch = useCallback(() => {
         fetchFiles()
-            .then(setFiles)
+            .then((resp) => setFiles(resp.files))
             .catch((error) => alert(error));
     }, [fetchFiles]);
 
